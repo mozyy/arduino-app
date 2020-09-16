@@ -1,6 +1,6 @@
 import {
   Box,
-  Checkbox, createStyles, makeStyles, Theme,
+  createStyles, makeStyles, Theme,
 } from '@material-ui/core';
 import AppsIcon from '@material-ui/icons/Apps';
 import EditIcon from '@material-ui/icons/Edit';
@@ -13,6 +13,7 @@ import {
   Route, Switch,
   useHistory,
 } from 'react-router-dom';
+import Bluetooth from '../bluetooth/Bluetooth';
 import Home from '../home/Home';
 import NotFound from '../notFound/NotFound';
 
@@ -48,7 +49,7 @@ const Pages:React.FC = () => {
           <Home />
         </Route>
         <Route path="/bluetooth">
-          <Checkbox checked />
+          <Bluetooth />
         </Route>
         <Route path="*">
           <NotFound />

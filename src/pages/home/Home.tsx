@@ -1,5 +1,5 @@
 import {
-  Box, ButtonBase, createStyles, GridList, GridListTile, makeStyles, Theme,
+  Box, ButtonBase, createStyles, GridList, GridListTile, makeStyles, Theme, colors,
 } from '@material-ui/core';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -14,33 +14,46 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     backgroundColor: theme.palette.background.paper,
   },
   gridList: {
-    width: 500,
-    height: 450,
+    width: '100%',
+    // height: 450,
+  },
+  button: {
+    width: '100%',
+    height: '100%',
+    color: '#fff',
+    fontSize: theme.typography.h2.fontSize,
   },
 }));
 
 const apps = [
   {
-    icon: <SettingsBluetoothIcon />,
+    Icon: SettingsBluetoothIcon,
     name: '蓝牙',
+    link: '/bluetooth',
   },
   {
-    icon: <SettingsBluetoothIcon />,
+    Icon: SettingsBluetoothIcon,
     name: '蓝牙2',
+    link: '/bluetooth',
   },
   {
-    icon: <SettingsBluetoothIcon />,
+    Icon: SettingsBluetoothIcon,
     name: '蓝牙3',
+    link: '/bluetooth',
   },
   {
-    icon: <SettingsBluetoothIcon />,
+    Icon: SettingsBluetoothIcon,
     name: '蓝牙4',
+    link: '/bluetooth',
   },
 ];
 
 const Home = () => {
   const history = useHistory();
   const classes = useStyles();
+  const { common, ...color } = colors;
+  const colorsValues = Object.values(color);
+  console.log(colorsValues);
   return (
     <Box>
       <GridList cellHeight={160} className={classes.gridList} cols={3}>
@@ -48,8 +61,15 @@ const Home = () => {
           <GridListTile key={app.name} cols={[1, 2, 2, 1][index % 4]}>
             <ButtonBase
               focusRipple
+              className={classes.button}
+              style={{
+                background: colorsValues[index % colorsValues.length]['700'],
+              }}
+              onClick={() => {
+                history.push(app.link);
+              }}
             >
-              {app.icon}
+              <app.Icon fontSize="inherit" />
             </ButtonBase>
           </GridListTile>
         ))}

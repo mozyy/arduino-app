@@ -14,6 +14,7 @@
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.5",
+    "@types/web-bluetooth": "0.0.9",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-airbnb-typescript": "^10.0.0",
     "fontsource-roboto": "^3.0.3",
@@ -24,7 +25,7 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -39,7 +40,8 @@
       "import/no-unresolved": 0,
       "react/jsx-filename-extension": 0,
       "react/jsx-props-no-spreading": 0,
-      "no-console": 0
+      "no-console": 0,
+      "no-bitwise": 0
     }
   },
   "browserslist": {
