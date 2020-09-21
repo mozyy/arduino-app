@@ -106,9 +106,9 @@ class _BottomAppBarDemoState extends State<BottomAppBarDemo> {
                 var subscription = flutterBlue.scanResults.listen((results) {
                     // do something with scan results
                     for (ScanResult r in results) {
-                      if(r.device.name != "") {
-                        print('${r.device.name} found! rssi: ${r.rssi}');
-                      }
+                      // if(r.device.name != "") {
+                        print('${r.device.name} found! rssi: ${r.rssi}, id: ${r.device.id}');
+                      // }
                     }
                 });
 
