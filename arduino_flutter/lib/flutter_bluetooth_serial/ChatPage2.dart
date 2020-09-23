@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class ChatPage extends StatefulWidget {
-  final BluetoothDevice server;
-  
-  const ChatPage({this.server});
+  const ChatPage();
   
   @override
   _ChatPage createState() => new _ChatPage();
@@ -21,6 +19,8 @@ class _Message {
 }
 
 class _ChatPage extends State<ChatPage> {
+  final address = 'C4:4C:12:04:0C:DE';
+
   static final clientID = 0;
   static final maxMessageLength = 4096 - 3;
   BluetoothConnection connection;
@@ -40,35 +40,7 @@ class _ChatPage extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    BluetoothConnection.toAddress(widget.server.address).then((_connection) {
-      print('Connected to the device');
-      connection = _connection;
-      setState(() {
-        isConnecting = false;
-        isDisconnecting = false;
-      });
-
-      connection.input.listen(_onDataReceived).onDone(() {
-        // Example: Detect which side closed the connection
-        // There should be `isDisconnecting` flag to show are we are (locally)
-        // in middle of disconnecting process, should be set before calling
-        // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
-        // If we didn't except this (no flag set), it means closing by remote.
-        if (isDisconnecting) {
-          print('Disconnecting locally!');
-        }
-        else {
-          print('Disconnected remotely!');
-        }
-        if (this.mounted) {
-          setState(() {});
-        }
-      });
-    }).catchError((error) {
-      print('Cannot connect, exception occured');
-      print(error);
-    });
+    _connectBluetooth();
   }
 
   @override
@@ -105,9 +77,9 @@ class _ChatPage extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: (
-          isConnecting ? Text('Connecting chat to ' + widget.server.name + '...') :
-          isConnected ? Text('Live chat with ' + widget.server.name) :
-          Text('Chat log with ' + widget.server.name)
+          isConnecting ? Text('Connecting chat to arduino...') :
+          isConnected ? Text('Live chat with arduino') :
+          Text('Chat log with arduino')
         )
       ),
       body: SafeArea(
@@ -157,16 +129,33 @@ class _ChatPage extends State<ChatPage> {
 
   void _connectBluetooth () {
     setState(() {
-        isDisconnecting = true;
-      });
-  BluetoothConnection.toAddress(widget.server.address).then((_connection) {
-      print('Connected to the device: ${widget.server.address}');
+      isDisconnecting = true;
+    });
+    BluetoothConnection.toAddress(address).then((_connection) {
+      print('Connected to the device: $address');
       connection = _connection;
       setState(() {
         isConnecting = false;
         isDisconnecting = false;
       });
 
+      connection.input.listen(_onDataReceived).onDone(() {
+        // Example: Detect which side closed the connection
+        // There should be `isDisconnecting` flag to show are we are (locally)
+        // in middle of disconnecting process, should be set before calling
+        // `dispose`, `finish` or `close`, which all causes to disconnect.
+        // If we except the disconnection, `onDone` should be fired as result.
+        // If we didn't except this (no flag set), it means closing by remote.
+        if (isDisconnecting) {
+          print('Disconnecting locally!');
+        }
+        else {
+          print('Disconnected remotely!');
+        }
+        if (this.mounted) {
+          setState(() {});
+        }
+      });
     }).catchError((error) {
       print('Cannot connect, exception occured');
       print(error);
@@ -203,6 +192,9 @@ class _ChatPage extends State<ChatPage> {
     // Create message if there is new line character
     String dataString = String.fromCharCodes(buffer);
     int index = buffer.indexOf(13);
+    print('receive: data:$data,buffer:$buffer,dataString:$dataString');
+    print('utf8:${utf8.decode(data)}');
+
     if (~index != 0) { // \r\n
       setState(() {
         messages.add(_Message(1, 
@@ -230,6 +222,7 @@ class _ChatPage extends State<ChatPage> {
 
     if (text.length > 0)  {
       try {
+        print('send: ${utf8.encode(text+"\r\n")}');
         connection.output.add(utf8.encode(text + "\r\n"));
         await connection.output.allSent;
 
