@@ -1,11 +1,22 @@
-import { Box, Typography } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import {
+  Box, Button, createStyles, makeStyles, Theme, Typography,
+} from '@material-ui/core';
+import React, { useState } from 'react';
+import BluetoothIcon from '@material-ui/icons/Bluetooth';
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+  button: {
+    margin: theme.spacing(1),
+  },
+}));
 
 const Bluetooth = () => {
+  const classes = useStyles();
   const [device, setDevice] = useState<BluetoothDevice>();
   // const [chosenHeartRateService, setChosenHeartRateService] =
   // useState<BluetoothRemoteGATTService>();
   const [error, setError] = useState<Error>();
+  const [logs, setLogs] = useState<string[]>([]);
   const devices = {};
   const oo:any[] = [];
   const getK = (d:any, dd:any) => {
@@ -31,7 +42,7 @@ const Bluetooth = () => {
   };
   getK(device, devices);
 
-  useEffect(() => {
+  const connectBluetooth = () => {
     function parseHeartRate(data: DataView) {
       const flags = data.getUint8(0);
       const rate16Bits = flags & 0x1;
@@ -110,7 +121,10 @@ const Bluetooth = () => {
         });
     }
 
-    navigator.bluetooth.requestDevice({ filters: [{ services: ['battery_service'] }] }).then((dev) => {
+    navigator.bluetooth.requestDevice({
+      // filters: [{ services: ['battery_service'] }],
+      acceptAllDevices: true,
+    }).then((dev) => {
       console.log(`名称: ${dev.name}`);
       console.log(`id: ${dev.id}`);
       console.log(`connected: ${dev.gatt?.connected}`);
@@ -124,10 +138,12 @@ const Bluetooth = () => {
     })
       .then((server) => {
         console.log(1111111, server);
+        setLogs((l) => ([...l, `connected success server: ${server.device.name}`]));
         return server.getPrimaryService('battery_service');
       })
       .then((service) => {
         console.log('service:', service);
+        setLogs((l) => ([...l, `get primary service: ${service.device.name}`]));
         return Promise.all([
           service.getCharacteristic('body_sensor_location')
             .then(handleBodySensorLocationCharacteristic),
@@ -139,9 +155,10 @@ const Bluetooth = () => {
         console.log(`出现错误： ${err}`);
         setError(err);
       });
-  }, []);
+  };
+
   return (
-    <Box>
+    <Box style={{ whiteSpace: 'pre-wrap' }}>
       <Typography variant="h2">
         Bluetooth
       </Typography>
@@ -155,6 +172,20 @@ const Bluetooth = () => {
         {error?.message}
         {JSON.stringify(error)}
       </div>
+      <div>
+        logs:
+        <br />
+        {logs.join('\n')}
+      </div>
+      <Button
+        variant="contained"
+        color="primary"
+        className={classes.button}
+        startIcon={<BluetoothIcon />}
+        onClick={connectBluetooth}
+      >
+        蓝牙
+      </Button>
     </Box>
   );
 };
